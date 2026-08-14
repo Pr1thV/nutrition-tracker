@@ -151,10 +151,7 @@ if STATIC_DIR.exists():
 
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description="Run NutritionTrackerAI FastAPI Backend")
-    parser.add_argument("--host", type=str, default="0.0.0.0", help="Host IP")
-    parser.add_argument("--port", type=int, default=8000, help="Port")
-    parser.add_argument("--reload", action="store_true", default=True, help="Auto-reload on code change")
-    args = parser.parse_args()
-
-    uvicorn.run("app.main:app", host=args.host, port=args.port, reload=args.reload)
+    port = int(os.getenv("PORT", "8000"))
+    host = os.getenv("HOST", "0.0.0.0")
+    logger.info(f"Starting server on {host}:{port}")
+    uvicorn.run("app.main:app", host=host, port=port, workers=1)
