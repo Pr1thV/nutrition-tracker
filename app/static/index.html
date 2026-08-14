@@ -1,0 +1,545 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NutritionTrackerAI — Indian Food & Micronutrient Tracker</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #0b0f19;
+            --card-bg: rgba(22, 30, 49, 0.85);
+            --border: rgba(255, 255, 255, 0.08);
+            --primary: #10b981;
+            --primary-glow: rgba(16, 185, 129, 0.25);
+            --accent: #f59e0b;
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --card-radius: 16px;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Outfit', sans-serif;
+        }
+
+        body {
+            background-color: var(--bg);
+            color: var(--text-main);
+            min-height: 100vh;
+            padding: 24px 16px;
+            display: flex;
+            justify-content: center;
+        }
+
+        .container {
+            max-width: 1100px;
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            gap: 24px;
+        }
+
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 24px;
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: var(--card-radius);
+            backdrop-filter: blur(12px);
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 1.5rem;
+            font-weight: 700;
+        }
+
+        .logo span {
+            color: var(--primary);
+        }
+
+        .badges {
+            display: flex;
+            gap: 8px;
+        }
+
+        .badge {
+            font-size: 0.75rem;
+            padding: 4px 10px;
+            border-radius: 20px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--border);
+            color: var(--text-muted);
+        }
+
+        .badge.green {
+            background: rgba(16, 185, 129, 0.15);
+            border-color: rgba(16, 185, 129, 0.4);
+            color: #34d399;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: 1.2fr 1fr;
+            gap: 24px;
+        }
+
+        @media (max-width: 850px) {
+            .grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .card {
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: var(--card-radius);
+            padding: 24px;
+            backdrop-filter: blur(12px);
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .card-title {
+            font-size: 1.15rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        /* Upload Area */
+        .upload-box {
+            border: 2px dashed rgba(255, 255, 255, 0.15);
+            border-radius: 12px;
+            padding: 32px 20px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            background: rgba(0, 0, 0, 0.2);
+        }
+
+        .upload-box:hover, .upload-box.dragover {
+            border-color: var(--primary);
+            background: var(--primary-glow);
+        }
+
+        .upload-icon {
+            font-size: 2.5rem;
+            margin-bottom: 8px;
+        }
+
+        .preview-img {
+            max-width: 100%;
+            max-height: 220px;
+            border-radius: 8px;
+            object-fit: cover;
+            margin-top: 12px;
+            display: none;
+        }
+
+        /* Nutrients Dashboard */
+        .macro-row {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 12px;
+        }
+
+        .macro-card {
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid var(--border);
+            padding: 12px;
+            border-radius: 10px;
+            text-align: center;
+        }
+
+        .macro-val {
+            font-size: 1.25rem;
+            font-weight: 700;
+            margin-top: 4px;
+        }
+
+        .macro-val.cal { color: #f59e0b; }
+        .macro-val.pro { color: #3b82f6; }
+        .macro-val.carb { color: #10b981; }
+        .macro-val.fat { color: #ec4899; }
+
+        .items-list {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .item-chip {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 14px;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            font-size: 0.9rem;
+        }
+
+        .portion-btns {
+            display: flex;
+            gap: 8px;
+            margin-top: 8px;
+        }
+
+        .btn {
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid var(--border);
+            color: var(--text-main);
+            padding: 8px 16px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.2s ease;
+        }
+
+        .btn:hover {
+            background: rgba(255, 255, 255, 0.15);
+        }
+
+        .btn.primary {
+            background: var(--primary);
+            color: #000;
+            border: none;
+            font-weight: 600;
+        }
+
+        .btn.primary:hover {
+            background: #059669;
+        }
+
+        /* Progress Bar */
+        .progress-bar-bg {
+            background: rgba(255, 255, 255, 0.08);
+            height: 10px;
+            border-radius: 5px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .progress-bar-fill {
+            background: linear-gradient(90deg, #10b981, #f59e0b);
+            height: 100%;
+            width: 0%;
+            transition: width 0.4s ease;
+        }
+
+        /* Chat Section */
+        .chat-box {
+            display: flex;
+            flex-direction: column;
+            height: 380px;
+        }
+
+        .chat-messages {
+            flex: 1;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            padding-right: 6px;
+            margin-bottom: 12px;
+        }
+
+        .msg {
+            padding: 10px 14px;
+            border-radius: 12px;
+            max-width: 85%;
+            font-size: 0.9rem;
+            line-height: 1.4;
+        }
+
+        .msg.bot {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--border);
+            align-self: flex-start;
+        }
+
+        .msg.user {
+            background: var(--primary);
+            color: #000;
+            font-weight: 500;
+            align-self: flex-end;
+        }
+
+        .chat-input-row {
+            display: flex;
+            gap: 8px;
+        }
+
+        .chat-input {
+            flex: 1;
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid var(--border);
+            color: #fff;
+            padding: 10px 14px;
+            border-radius: 8px;
+            outline: none;
+        }
+
+        .chat-input:focus {
+            border-color: var(--primary);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <header>
+            <div class="logo">
+                🥗 Nutrition<span>Tracker</span>AI
+            </div>
+            <div class="badges">
+                <div class="badge green">● EfficientNet-B0 (97.7%)</div>
+                <div class="badge">ICMR-NIN IFCT 2017</div>
+                <div class="badge">Google ADK Agent</div>
+            </div>
+        </header>
+
+        <!-- Main Dashboard Grid -->
+        <div class="grid">
+            <!-- Left: Photo Upload & Results -->
+            <div class="card">
+                <div class="card-title">📸 Food Photo Analysis & Plate Decomposer</div>
+                
+                <div class="upload-box" id="dropArea" onclick="document.getElementById('fileInput').click()">
+                    <div class="upload-icon">🍲</div>
+                    <div><strong>Click to upload</strong> or drag & drop food photo</div>
+                    <div style="font-size: 0.8rem; color: var(--text-muted); margin-top: 4px;">Supports Biryani, Dosa, Roti, Dal, Paneer, Gulab Jamun, Samosa, etc.</div>
+                    <input type="file" id="fileInput" accept="image/*" style="display: none;" onchange="handleFile(this.files[0])">
+                    <img id="imagePreview" class="preview-img" alt="Uploaded food preview">
+                </div>
+
+                <div id="loadingText" style="display: none; text-align: center; color: var(--accent);">
+                    ⚡ Analyzing with EfficientNet-B0 & grounding in IFCT database...
+                </div>
+
+                <!-- Nutrition Breakdown Results -->
+                <div id="resultsCard" style="display: none; flex-direction: column; gap: 16px;">
+                    <div class="macro-row">
+                        <div class="macro-card">
+                            <div style="font-size: 0.75rem; color: var(--text-muted);">CALORIES</div>
+                            <div class="macro-val cal" id="resCalories">0 kcal</div>
+                        </div>
+                        <div class="macro-card">
+                            <div style="font-size: 0.75rem; color: var(--text-muted);">PROTEIN</div>
+                            <div class="macro-val pro" id="resProtein">0g</div>
+                        </div>
+                        <div class="macro-card">
+                            <div style="font-size: 0.75rem; color: var(--text-muted);">CARBS</div>
+                            <div class="macro-val carb" id="resCarbs">0g</div>
+                        </div>
+                        <div class="macro-card">
+                            <div style="font-size: 0.75rem; color: var(--text-muted);">FAT</div>
+                            <div class="macro-val fat" id="resFat">0g</div>
+                        </div>
+                    </div>
+
+                    <div>
+                        <div style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 8px;">IDENTIFIED ITEMS:</div>
+                        <div class="items-list" id="itemsContainer"></div>
+                    </div>
+
+                    <!-- Portion Adjustment -->
+                    <div class="portion-btns">
+                        <button class="btn" onclick="adjustPortion(0.75)">🔹 Small (-25%)</button>
+                        <button class="btn" onclick="adjustPortion(1.0)">Standard</button>
+                        <button class="btn" onclick="adjustPortion(1.5)">🔸 Large (+50%)</button>
+                        <button class="btn" style="margin-left: auto;" onclick="sendFeedback(true)">👍 Accurate</button>
+                        <button class="btn" onclick="sendFeedback(false)">👎 Dispute</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right: Today's Summary & AI Wellness Coach Chat -->
+            <div style="display: flex; flex-direction: column; gap: 24px;">
+                <!-- Daily Goal Tracker -->
+                <div class="card">
+                    <div class="card-title">📅 Today's Calorie Progress</div>
+                    <div>
+                        <div style="display: flex; justify-content: space-between; font-size: 0.9rem; margin-bottom: 6px;">
+                            <span>Consumed: <strong id="todayConsumed">0</strong> / 2000 kcal</span>
+                            <span id="todayPct" style="color: var(--primary);">0%</span>
+                        </div>
+                        <div class="progress-bar-bg">
+                            <div class="progress-bar-fill" id="progressBar"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Wellness Coach Chat -->
+                <div class="card chat-box">
+                    <div class="card-title">🌿 AI Nutrition & Wellness Coach</div>
+                    <div class="chat-messages" id="chatMessages">
+                        <div class="msg bot">
+                            Namaste! I am your AI Clinical Dietitian. Ask me anything about Indian food recipes, high-protein veg sources, or calorie management!
+                        </div>
+                    </div>
+                    <div class="chat-input-row">
+                        <input type="text" class="chat-input" id="chatInput" placeholder="e.g. How to get 80g protein in a veg diet?" onkeydown="if(event.key==='Enter') sendChat()">
+                        <button class="btn primary" onclick="sendChat()">Send</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentMealId = null;
+
+        // File Drag & Drop
+        const dropArea = document.getElementById('dropArea');
+        ['dragenter', 'dragover'].forEach(name => {
+            dropArea.addEventListener(name, (e) => { e.preventDefault(); dropArea.classList.add('dragover'); });
+        });
+        ['dragleave', 'drop'].forEach(name => {
+            dropArea.addEventListener(name, (e) => { e.preventDefault(); dropArea.classList.remove('dragover'); });
+        });
+        dropArea.addEventListener('drop', (e) => {
+            if (e.dataTransfer.files.length) handleFile(e.dataTransfer.files[0]);
+        });
+
+        async function handleFile(file) {
+            if (!file) return;
+            const preview = document.getElementById('imagePreview');
+            preview.src = URL.createObjectURL(file);
+            preview.style.display = 'block';
+
+            document.getElementById('loadingText').style.display = 'block';
+            document.getElementById('resultsCard').style.display = 'none';
+
+            const formData = new FormData();
+            formData.append('file', file);
+            formData.append('user_id', 1);
+
+            try {
+                const res = await fetch('/api/analyze-food', { method: 'POST', body: formData });
+                const data = await res.json();
+                document.getElementById('loadingText').style.display = 'none';
+
+                if (data.success) {
+                    currentMealId = data.meal_id;
+                    renderResults(data);
+                    loadDailySummary();
+                }
+            } catch (err) {
+                document.getElementById('loadingText').style.display = 'none';
+                alert('Error analyzing image: ' + err.message);
+            }
+        }
+
+        function renderResults(data) {
+            document.getElementById('resCalories').innerText = Math.round(data.total_calories) + ' kcal';
+            document.getElementById('resProtein').innerText = data.total_protein.toFixed(1) + 'g';
+            document.getElementById('resCarbs').innerText = data.total_carbs.toFixed(1) + 'g';
+            document.getElementById('resFat').innerText = data.total_fat.toFixed(1) + 'g';
+
+            const container = document.getElementById('itemsContainer');
+            container.innerHTML = '';
+            data.items.forEach(itm => {
+                const chip = document.createElement('div');
+                chip.className = 'item-chip';
+                chip.innerHTML = `
+                    <div><strong>${itm.food_name}</strong> (${Math.round(itm.portion_grams)}g)</div>
+                    <div style="color: var(--accent);">${Math.round(itm.calories)} kcal | ${itm.protein.toFixed(1)}g P</div>
+                `;
+                container.appendChild(chip);
+            });
+
+            document.getElementById('resultsCard').style.display = 'flex';
+        }
+
+        async function adjustPortion(scale) {
+            if (!currentMealId) return;
+            const res = await fetch('/api/adjust-portion', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ meal_id: currentMealId, scale_factor: scale })
+            });
+            const data = await res.json();
+            if (data.status === 'success') {
+                document.getElementById('resCalories').innerText = Math.round(data.new_calories) + ' kcal';
+                document.getElementById('resProtein').innerText = data.new_protein.toFixed(1) + 'g';
+                document.getElementById('resCarbs').innerText = data.new_carbs.toFixed(1) + 'g';
+                document.getElementById('resFat').innerText = data.new_fat.toFixed(1) + 'g';
+                loadDailySummary();
+            }
+        }
+
+        async function sendFeedback(isAccurate) {
+            if (!currentMealId) return;
+            await fetch('/api/feedback', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ user_id: 1, meal_id: currentMealId, is_accurate: isAccurate })
+            });
+            alert(isAccurate ? '👍 Accuracy feedback recorded!' : '👎 Dispute recorded for model fine-tuning.');
+        }
+
+        async function loadDailySummary() {
+            try {
+                const res = await fetch('/api/daily-summary/1');
+                const data = await res.json();
+                if (data.consumed) {
+                    const c = Math.round(data.consumed.calories);
+                    const pct = Math.min(100, Math.round((c / 2000) * 100));
+                    document.getElementById('todayConsumed').innerText = c;
+                    document.getElementById('todayPct').innerText = pct + '%';
+                    document.getElementById('progressBar').style.width = pct + '%';
+                }
+            } catch (err) {}
+        }
+
+        async function sendChat() {
+            const input = document.getElementById('chatInput');
+            const msg = input.value.trim();
+            if (!msg) return;
+
+            const chatMessages = document.getElementById('chatMessages');
+            
+            // Add User message
+            const userDiv = document.createElement('div');
+            userDiv.className = 'msg user';
+            userDiv.innerText = msg;
+            chatMessages.appendChild(userDiv);
+            input.value = '';
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+
+            try {
+                const res = await fetch('/api/chat', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ user_id: 1, message: msg })
+                });
+                const data = await res.json();
+                const botDiv = document.createElement('div');
+                botDiv.className = 'msg bot';
+                botDiv.innerText = data.response;
+                chatMessages.appendChild(botDiv);
+                chatMessages.scrollTop = chatMessages.scrollHeight;
+            } catch (err) {
+                const errDiv = document.createElement('div');
+                errDiv.className = 'msg bot';
+                errDiv.innerText = '⚠️ Error contacting coach agent.';
+                chatMessages.appendChild(errDiv);
+            }
+        }
+
+        // Initialize on page load
+        loadDailySummary();
+    </script>
+</body>
+</html>

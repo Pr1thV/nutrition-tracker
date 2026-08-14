@@ -1,0 +1,3 @@
+"""
+NutritionTrackerAI Web Application Package.
+"""

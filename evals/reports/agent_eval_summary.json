@@ -1,0 +1,93 @@
+{
+  "benchmark_name": "Indian Food Nutrition Ground Truth Benchmark",
+  "total_test_cases": 8,
+  "total_food_items_evaluated": 10,
+  "metrics": {
+    "calorie_mape_pct": 0.0,
+    "protein_mape_pct": 0.0,
+    "ifct_grounding_accuracy_pct": 100.0,
+    "pass_status": "PASSED"
+  },
+  "detailed_results": [
+    {
+      "test_case_id": "tc_01",
+      "description": "Single dish: 1 standard bowl of Dal Tadka",
+      "expected_cal": 157.5,
+      "actual_cal": 157.5,
+      "cal_error_pct": "0.0%",
+      "expected_protein": 7.8,
+      "actual_protein": 7.8,
+      "protein_error_pct": "0.0%"
+    },
+    {
+      "test_case_id": "tc_02",
+      "description": "Bread: 2 medium Chapati / Phulka Rotis",
+      "expected_cal": 216.0,
+      "actual_cal": 216.0,
+      "cal_error_pct": "0.0%",
+      "expected_protein": 7.6,
+      "actual_protein": 7.6,
+      "protein_error_pct": "0.0%"
+    },
+    {
+      "test_case_id": "tc_03",
+      "description": "Multi-item Thali: 2 Rotis (80g) + 1 bowl Dal Tadka (150g) + Paneer Butter Masala (180g)",
+      "expected_cal": 769.5,
+      "actual_cal": 769.5,
+      "cal_error_pct": "0.0%",
+      "expected_protein": 30.5,
+      "actual_protein": 30.5,
+      "protein_error_pct": "0.0%"
+    },
+    {
+      "test_case_id": "tc_04",
+      "description": "Breakfast: Masala Dosa with Potato Filling",
+      "expected_cal": 342.0,
+      "actual_cal": 342.0,
+      "cal_error_pct": "0.0%",
+      "expected_protein": 8.3,
+      "actual_protein": 8.3,
+      "protein_error_pct": "0.0%"
+    },
+    {
+      "test_case_id": "tc_05",
+      "description": "Rice: 1 plate Chicken Dum Biryani",
+      "expected_cal": 525.0,
+      "actual_cal": 525.0,
+      "cal_error_pct": "0.0%",
+      "expected_protein": 25.5,
+      "actual_protein": 25.5,
+      "protein_error_pct": "0.0%"
+    },
+    {
+      "test_case_id": "tc_06",
+      "description": "Snack: 1 Punjabi Samosa",
+      "expected_cal": 208.0,
+      "actual_cal": 208.0,
+      "cal_error_pct": "0.0%",
+      "expected_protein": 3.6,
+      "actual_protein": 3.6,
+      "protein_error_pct": "0.0%"
+    },
+    {
+      "test_case_id": "tc_07",
+      "description": "Street Food: Mumbai Pav Bhaji (2 buns + bhaji)",
+      "expected_cal": 437.5,
+      "actual_cal": 437.5,
+      "cal_error_pct": "0.0%",
+      "expected_protein": 10.5,
+      "actual_protein": 10.5,
+      "protein_error_pct": "0.0%"
+    },
+    {
+      "test_case_id": "tc_08",
+      "description": "Sweet: 2 Gulab Jamuns in syrup",
+      "expected_cal": 231.0,
+      "actual_cal": 231.0,
+      "cal_error_pct": "0.0%",
+      "expected_protein": 2.9,
+      "actual_protein": 2.9,
+      "protein_error_pct": "0.0%"
+    }
+  ]
+}

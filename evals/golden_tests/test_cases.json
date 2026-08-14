@@ -1,0 +1,120 @@
+{
+  "benchmark_name": "Indian Food Nutrition Ground Truth Benchmark",
+  "version": "1.0",
+  "test_cases": [
+    {
+      "id": "tc_01",
+      "description": "Single dish: 1 standard bowl of Dal Tadka",
+      "query_type": "single_item",
+      "food_name": "dal_tadka",
+      "portion_grams": 150.0,
+      "expected": {
+        "calories": 157.5,
+        "protein_g": 7.8,
+        "carbs_g": 20.2,
+        "fat_g": 5.4,
+        "primary_dish_key": "dal_tadka"
+      }
+    },
+    {
+      "id": "tc_02",
+      "description": "Bread: 2 medium Chapati / Phulka Rotis",
+      "query_type": "bread",
+      "food_name": "chapati_roti",
+      "portion_grams": 80.0,
+      "expected": {
+        "calories": 216.0,
+        "protein_g": 7.6,
+        "carbs_g": 41.6,
+        "fat_g": 2.2,
+        "primary_dish_key": "chapati_roti"
+      }
+    },
+    {
+      "id": "tc_03",
+      "description": "Multi-item Thali: 2 Rotis (80g) + 1 bowl Dal Tadka (150g) + Paneer Butter Masala (180g)",
+      "query_type": "multi_item_thali",
+      "items": [
+        {"name": "chapati_roti", "portion_grams": 80.0},
+        {"name": "dal_tadka", "portion_grams": 150.0},
+        {"name": "paneer_butter_masala", "portion_grams": 180.0}
+      ],
+      "expected": {
+        "calories": 769.5,
+        "protein_g": 30.5,
+        "carbs_g": 78.9,
+        "fat_g": 38.6
+      }
+    },
+    {
+      "id": "tc_04",
+      "description": "Breakfast: Masala Dosa with Potato Filling",
+      "query_type": "breakfast",
+      "food_name": "dosa_masala",
+      "portion_grams": 180.0,
+      "expected": {
+        "calories": 342.0,
+        "protein_g": 8.3,
+        "carbs_g": 53.1,
+        "fat_g": 11.2,
+        "primary_dish_key": "dosa_masala"
+      }
+    },
+    {
+      "id": "tc_05",
+      "description": "Rice: 1 plate Chicken Dum Biryani",
+      "query_type": "rice",
+      "food_name": "biryani_chicken",
+      "portion_grams": 300.0,
+      "expected": {
+        "calories": 525.0,
+        "protein_g": 25.5,
+        "carbs_g": 70.5,
+        "fat_g": 17.4,
+        "primary_dish_key": "biryani_chicken"
+      }
+    },
+    {
+      "id": "tc_06",
+      "description": "Snack: 1 Punjabi Samosa",
+      "query_type": "snack",
+      "food_name": "samosa",
+      "portion_grams": 80.0,
+      "expected": {
+        "calories": 208.0,
+        "protein_g": 3.6,
+        "carbs_g": 25.6,
+        "fat_g": 10.4,
+        "primary_dish_key": "samosa"
+      }
+    },
+    {
+      "id": "tc_07",
+      "description": "Street Food: Mumbai Pav Bhaji (2 buns + bhaji)",
+      "query_type": "street_food",
+      "food_name": "pav_bhaji",
+      "portion_grams": 250.0,
+      "expected": {
+        "calories": 437.5,
+        "protein_g": 10.5,
+        "carbs_g": 61.2,
+        "fat_g": 17.5,
+        "primary_dish_key": "pav_bhaji"
+      }
+    },
+    {
+      "id": "tc_08",
+      "description": "Sweet: 2 Gulab Jamuns in syrup",
+      "query_type": "sweet",
+      "food_name": "gulab_jamun",
+      "portion_grams": 70.0,
+      "expected": {
+        "calories": 231.0,
+        "protein_g": 2.9,
+        "carbs_g": 39.2,
+        "fat_g": 7.3,
+        "primary_dish_key": "gulab_jamun"
+      }
+    }
+  ]
+}

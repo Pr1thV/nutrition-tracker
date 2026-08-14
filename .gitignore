@@ -1,0 +1,40 @@
+# Environment & Secrets
+.env
+.env.local
+*.env
+
+# Python & Virtual Environments
+venv/
+env/
+.venv/
+__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Data & SQLite Databases
+data/*.db
+data/nutrition_tracker.db
+data/Foodies_Challenge_Dataset/
+data/*.zip
+data/*.tar.gz
+scratch/
+
+# Trained Heavy Model Weights (Track config & classes instead)
+models/*.keras
+models/*.h5
+models/*.weights.h5
+!models/trained_classes.json
+!models/class_indices.json
+
+# Logs & Observability
+logs/
+*.log
+
+# IDE & OS files
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
