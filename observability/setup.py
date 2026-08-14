@@ -7,6 +7,10 @@ import logging
 import os
 from typing import Optional
 
+from dotenv import load_dotenv
+
+load_dotenv()
+
 from opentelemetry import trace
 from opentelemetry.exporter.otlp.proto.http.trace_exporter import OTLPSpanExporter
 from opentelemetry.sdk.resources import Resource
@@ -57,6 +61,33 @@ def init_observability(service_name: str = "NutritionTrackerAI") -> trace.Tracer
         logger.info("Langfuse credentials not detected. OpenTelemetry initialized with local tracer.")
 
     return trace.get_tracer(service_name)
+
+
+from langfuse import Langfuse
+
+# Direct Langfuse Client for generations, sessions, and spans
+langfuse_client: Optional[Langfuse] = None
+
+pub_key = os.getenv("LANGFUSE_PUBLIC_KEY")
+sec_key = os.getenv("LANGFUSE_SECRET_KEY")
+base_url = os.getenv("LANGFUSE_BASE_URL", "https://cloud.langfuse.com")
+
+if pub_key and sec_key and not pub_key.startswith("pk-lf-your"):
+    try:
+        langfuse_client = Langfuse(
+            public_key=pub_key,
+            secret_key=sec_key,
+            host=base_url,
+        )
+        logger.info(f"✅ Langfuse Client connected to {base_url}")
+    except Exception as e:
+        logger.warning(f"Could not connect Langfuse client: {e}")
+        langfuse_client = None
+
+
+def get_langfuse() -> Optional[Langfuse]:
+    """Returns active Langfuse client if configured."""
+    return langfuse_client
 
 
 # Global tracer instance

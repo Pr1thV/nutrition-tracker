@@ -32,10 +32,10 @@ async def get_daily_nutrition_summary(
             "has_meals_today": False,
         }
 
-    # 2. Today's timestamp boundaries
-    now_utc = datetime.now(timezone.utc)
-    today_start = datetime.combine(now_utc.date(), time.min).replace(tzinfo=timezone.utc)
-    today_end = datetime.combine(now_utc.date(), time.max).replace(tzinfo=timezone.utc)
+    # 2. Today's timestamp boundaries (timezone-naive UTC for asyncpg & sqlite compatibility)
+    now_utc = datetime.now(timezone.utc).replace(tzinfo=None)
+    today_start = datetime.combine(now_utc.date(), time.min)
+    today_end = datetime.combine(now_utc.date(), time.max)
 
     # 3. Query today's meals with child items
     meals_q = (

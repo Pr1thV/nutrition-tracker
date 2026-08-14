@@ -78,7 +78,26 @@ class WellnessCoachAgent:
                     contents=prompt,
                 )
                 if response.text:
-                    return response.text.strip()
+                    coach_reply = response.text.strip()
+                    from observability.setup import get_langfuse
+                    lf = get_langfuse()
+                    if lf:
+                        try:
+                            trace = lf.trace(
+                                name="coach_chat_query",
+                                user_id=str(telegram_id),
+                                input=user_message,
+                                output=coach_reply,
+                            )
+                            trace.generation(
+                                name="gemini_coach_response",
+                                model=self.model_name,
+                                input=prompt,
+                                output=coach_reply,
+                            )
+                        except Exception:
+                            pass
+                    return coach_reply
             except Exception as e:
                 logger.error(f"Error calling Coach LLM: {e}")
 

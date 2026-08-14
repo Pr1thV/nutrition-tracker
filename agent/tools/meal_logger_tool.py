@@ -43,11 +43,12 @@ async def log_meal_record(
     total_fat = sum(item.get("fat", 0.0) for item in items_breakdown)
     total_fiber = sum(item.get("fiber", 0.0) for item in items_breakdown)
 
-    # 3. Create Meal
+    # 3. Create Meal (use timezone-naive UTC for cross-DB PostgreSQL & SQLite compatibility)
+    now_utc_naive = datetime.now(timezone.utc).replace(tzinfo=None)
     meal = Meal(
         user_id=user.id,
         meal_type=meal_type,
-        logged_at=datetime.now(timezone.utc),
+        logged_at=now_utc_naive,
         total_calories=round(total_cal, 1),
         total_protein=round(total_protein, 1),
         total_carbs=round(total_carbs, 1),

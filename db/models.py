@@ -2,8 +2,9 @@
 SQLAlchemy ORM Models for NutritionTrackerAI.
 Defines schemas for Users, Meals, MealItems, IFCT Nutritional Grounding Data, and Feedback.
 """
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import List, Optional
+
 from sqlalchemy import (
     BigInteger,
     Boolean,
@@ -16,6 +17,11 @@ from sqlalchemy import (
     Text,
 )
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, relationship
+
+
+def get_utc_now() -> datetime:
+    """Returns timezone-naive UTC datetime for cross-DB compatibility."""
+    return datetime.now(timezone.utc).replace(tzinfo=None)
 
 
 class Base(DeclarativeBase):
@@ -37,7 +43,7 @@ class User(Base):
     daily_fat_goal: Mapped[float] = mapped_column(Float, default=65.0)
     dietary_preference: Mapped[str] = mapped_column(String(50), default="omnivore")  # veg, non-veg, vegan
 
-    created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow)
+    created_at: Mapped[datetime] = mapped_column(DateTime, default=get_utc_now)
 
     # Relationships
     meals: Mapped[List["Meal"]] = relationship("Meal", back_populates="user", cascade="all, delete-orphan")
@@ -50,7 +56,7 @@ class Meal(Base):
     id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
     user_id: Mapped[int] = mapped_column(Integer, ForeignKey("users.id"), nullable=False, index=True)
     meal_type: Mapped[str] = mapped_column(String(50), default="meal")  # breakfast, lunch, dinner, snack
-    logged_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow, index=True)
+    logged_at: Mapped[datetime] = mapped_column(DateTime, default=get_utc_now, index=True)
 
     # Aggregated Macro Totals for the Meal
     total_calories: Mapped[float] = mapped_column(Float, default=0.0)
