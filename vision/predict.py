@@ -53,7 +53,21 @@ class FoodClassifierInference:
                 self.default_portions = data.get("default_portion_grams", {})
 
     def _load_model(self) -> None:
-        """Loads trained weights or initializes inference graph."""
+        """Loads lightweight TFLite model (<5MB, <30MB RAM) or falls back to Keras graph."""
+        tflite_path = self.model_path.parent / "indian_food_efficientnet.tflite"
+        if tflite_path.exists():
+            logger.info(f"Loading lightweight TFLite model from {tflite_path}")
+            try:
+                self.interpreter = tf.lite.Interpreter(model_path=str(tflite_path))
+                self.interpreter.allocate_tensors()
+                self.input_details = self.interpreter.get_input_details()
+                self.output_details = self.interpreter.get_output_details()
+                self.is_tflite = True
+                return
+            except Exception as e:
+                logger.warning(f"Failed to initialize TFLite interpreter: {e}")
+
+        self.is_tflite = False
         if self.model_path.exists():
             logger.info(f"Loading trained weights from {self.model_path}")
             self.model = tf.keras.models.load_model(str(self.model_path))
@@ -94,11 +108,16 @@ class FoodClassifierInference:
         Runs model inference on the given image.
         Returns a ranked list of predictions with class ID, display name, confidence, and default portion.
         """
-        if self.model is None:
-            raise RuntimeError("Model is not initialized.")
-
         input_batch = self.preprocess_image(image_source)
-        probabilities = self.model.predict(input_batch, verbose=0)[0]
+
+        if getattr(self, "is_tflite", False):
+            self.interpreter.set_tensor(self.input_details[0]["index"], input_batch)
+            self.interpreter.invoke()
+            probabilities = self.interpreter.get_tensor(self.output_details[0]["index"])[0]
+        else:
+            if self.model is None:
+                raise RuntimeError("Model is not initialized.")
+            probabilities = self.model.predict(input_batch, verbose=0)[0]
 
         top_indices = np.argsort(probabilities)[::-1][:top_k]
 
@@ -131,3 +150,21 @@ def get_food_classifier() -> FoodClassifierInference:
     if _classifier_instance is None:
         _classifier_instance = FoodClassifierInference()
     return _classifier_instance
+
+
+def classify_food_image(
+    image_source: Union[str, Path, bytes, Image.Image],
+    top_k: int = 3,
+) -> Dict[str, Any]:
+    """Convenience helper to classify a single image and return structured prediction metadata."""
+    classifier = get_food_classifier()
+    predictions = classifier.predict(image_source, top_k=top_k)
+    top_pred = predictions[0] if predictions else {}
+    return {
+        "top_prediction": top_pred.get("display_name", "Unknown Indian Dish"),
+        "top_class": top_pred.get("class_name", "unknown"),
+        "confidence": top_pred.get("confidence", 0.0),
+        "confidence_percentage": top_pred.get("confidence_percentage", "0%"),
+        "default_portion_grams": top_pred.get("default_portion_grams", 150),
+        "top_k": predictions,
+    }

@@ -33,8 +33,11 @@ ENV PATH=/root/.local/bin:$PATH
 # Copy application source code
 COPY . .
 
-# Environment variables
+# Environment variables (Optimized for 512MB RAM cloud containers)
 ENV PYTHONUNBUFFERED=1
+ENV TF_ENABLE_ONEDNN_OPTS=0
+ENV TF_CPP_MIN_LOG_LEVEL=2
+ENV MALLOC_TRIM_THRESHOLD_=65536
 ENV PORT=8000
 ENV HOST=0.0.0.0
 
@@ -44,5 +47,5 @@ EXPOSE 8000
 HEALTHCHECK --interval=30s --timeout=5s --start-period=10s --retries=3 \
   CMD curl -f http://localhost:8000/health || exit 1
 
-# Start FastAPI Uvicorn server
-CMD ["python", "-m", "app.main"]
+# Start FastAPI Uvicorn server with 1 worker to stay well below 512MB limit
+CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000", "--workers", "1"]

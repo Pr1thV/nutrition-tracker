@@ -25,6 +25,7 @@ scratch/
 # Trained Model Weights
 models/*.h5
 models/*.weights.h5
+!models/indian_food_efficientnet.tflite
 !models/indian_food_efficientnet.keras
 !models/trained_classes.json
 !models/class_indices.json
