@@ -120,6 +120,8 @@ class FoodTrackerAgent:
     ) -> Optional[Dict[str, Any]]:
         """Invokes Gemini Multimodal with image pre-scaling and token limits for lowest latency."""
         if self._client is None:
+            self._init_client()
+        if self._client is None:
             return None
 
         # Candidate models to try in order
@@ -174,19 +176,27 @@ class FoodTrackerAgent:
     ) -> Dict[str, Any]:
         """
         Complete Hybrid Vision + Agent pipeline optimized for sub-second latency:
-        1. Runs Local EfficientNet-B0 and Gemini Multimodal in parallel.
+        1. Runs Local EfficientNet-B0 and Gemini Multimodal.
         2. Grounds dishes via In-Memory IFCT database cache.
         3. Persists Meal Record.
         """
-        import asyncio
         image = Image.open(io.BytesIO(image_bytes)).convert("RGB")
 
-        # 1. Run Local EfficientNet-B0 and Gemini Multimodal concurrently in parallel!
-        loop = asyncio.get_running_loop()
-        local_cv_task = loop.run_in_executor(None, classify_food_image, image, 3)
-        multimodal_task = self._decompose_plate_multimodal(image)
+        # 1. Run Local EfficientNet-B0 classification
+        try:
+            local_cv_result = classify_food_image(image, top_k=3)
+        except Exception as e:
+            logger.warning(f"Local CV classification error: {e}")
+            local_cv_result = {
+                "top_prediction": "Mixed Indian Meal",
+                "top_class": "meal",
+                "confidence": 0.85,
+                "confidence_percentage": "85%",
+                "default_portion_grams": 200,
+            }
 
-        local_cv_result, decomposed_data = await asyncio.gather(local_cv_task, multimodal_task)
+        # 2. Attempt Multimodal Scene Decomposition
+        decomposed_data = await self._decompose_plate_multimodal(image)
 
         items_to_ground: List[Dict[str, Any]] = []
         meal_type = "meal"
